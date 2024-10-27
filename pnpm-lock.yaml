@@ -15,7 +15,7 @@ dependencies:
     specifier: ^0.62.2
     version: 0.62.4
   '@vueuse/core':
-    specifier: ^11.0.1
+    specifier: ^11.1.0
     version: 11.1.0(vue@3.5.12)
   '@vueuse/head':
     specifier: ^2.0.0

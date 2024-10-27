@@ -1,40 +1,107 @@
 <script setup lang="ts">
 import { data } from './config'
+import { wubiXsjData } from '~/constants'
 
-// const data = daa
-const hData = data.h
-const sData = data.s
-const pData = data.p
-const nData = data.n
-const zData = data.z
+interface Props {
+  rootKey?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  rootKey: 'z-0',
+})
+
+const hData = wubiXsjData.h
+const sData = wubiXsjData.s
+const pData = wubiXsjData.p
+const nData = wubiXsjData.n
+const zData = wubiXsjData.z
+
+const rootRef = useTemplateRef('rootRef')
+const wrapRef = useTemplateRef('wrapRef')
+const wrapStyle = ref({})
+onMounted(() => {
+  const wrapRefRect = wrapRef.value!.getBoundingClientRect()
+  const rootRefRect = rootRef.value!.getBoundingClientRect()
+  const ratio = wrapRefRect.width / rootRefRect.width
+  wrapStyle.value = {
+    width: `100%`,
+    height: `${rootRefRect.height * ratio}px`,
+    transform: `scale(${ratio})`,
+  }
+})
+
+function isActive(i: any) {
+  const rootKeyList = props.rootKey.split('-')
+  if (i[0] === rootKeyList[0]) {
+    if (i[1].list.includes(Number(rootKeyList[1]))) {
+      return true
+    }
+  }
+  return false
+}
 </script>
 
 <template>
-  <div class="wbWsj-root">
-    <!-- // 横 -->
-    <div class="wbWsj-root-part wbWsj-root-part--h">
-      <div v-for="i in hData" :key="i[0]" class="wbWsj-root-item" />
-    </div>
-    <!-- // 竖 -->
-    <div class="wbWsj-root-part wbWsj-root-part--s">
-      <div v-for="i in sData" :key="i[0]" class="wbWsj-root-item" />
-    </div>
-    <!-- // 撇 -->
-    <div class="wbWsj-root-part wbWsj-root-part--p">
-      <div v-for="i in pData" :key="i[0]" class="wbWsj-root-item" />
-    </div>
-    <!-- 捺 -->
-    <div class="wbWsj-root-part wbWsj-root-part--n">
-      <div v-for="i in nData" :key="i[0]" class="wbWsj-root-item" />
-    </div>
-    <!-- 折 -->
-    <div class="wbWsj-root-part wbWsj-root-part--z">
-      <div v-for="i in zData" :key="i[0]" class="wbWsj-root-item" />
+  <div>
+    <div ref="wrapRef" class="wbWsj-root-wrap-scale" :style="wrapStyle">
+      <div ref="rootRef" class="wbWsj-root">
+        <!-- // 横 -->
+        <div class="wbWsj-root-part wbWsj-root-part--h">
+          <div
+            v-for="i in hData.toReversed()" :key="i[0]" class="wbWsj-root-item"
+            :class="isActive(i) && 'wbWsj-root-item--active'" :data="i[0]"
+          >
+            {{ i[0] }}
+          </div>
+        </div>
+        <!-- // 竖 -->
+        <div class="wbWsj-root-part wbWsj-root-part--s">
+          <div
+            v-for="i in sData" :key="i[0]" class="wbWsj-root-item" :class="isActive(i) && 'wbWsj-root-item--active'"
+            :data="i[0]"
+          >
+            {{ i[0] }}
+          </div>
+        </div>
+        <!-- // 撇 -->
+        <div class="wbWsj-root-part wbWsj-root-part--p">
+          <div
+            v-for="i in pData.toReversed()" :key="i[0]" class="wbWsj-root-item"
+            :class="isActive(i) && 'wbWsj-root-item--active'" :data="i[0]"
+          >
+            {{ i[0] }}
+          </div>
+        </div>
+        <!-- 捺 -->
+        <div class="wbWsj-root-part wbWsj-root-part--n">
+          <div
+            v-for="i in nData" :key="i[0]" class="wbWsj-root-item" :class="isActive(i) && 'wbWsj-root-item--active'"
+            :data="i[0]"
+          >
+            {{ i[0] }}
+          </div>
+        </div>
+        <!-- 折 -->
+        <div class="wbWsj-root-part wbWsj-root-part--z">
+          <div
+            v-for="i in zData.toReversed()" :key="i[0]" class="wbWsj-root-item"
+            :class="isActive(i) && 'wbWsj-root-item--active'" :data="i[0]"
+          >
+            {{ i[0] }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
+.wbWsj-root-wrap-scale {
+  width: 100%;
+  will-change: transform;
+  transform-origin: 0 0;
+}
+
 .wbWsj-root {
   background: url('~/assets/wubi_root/xsj-main.jpg') no-repeat center center / 100% 100%;
   height: 100%;
@@ -47,14 +114,16 @@ const zData = data.z
     height: 296px;
     border-radius: 34px;
     overflow: hidden;
-    background: rgba(#000, 0.2);
-    // background: rgba(red, 0.8);
-    box-shadow: 0 0 20px 0 rgba(#000, 0.5);
     margin-right: 45px;
     flex-shrink: 0;
 
     &:last-child {
       margin-right: 0;
+    }
+
+    &.wbWsj-root-item--active {
+      background: rgba(#000, 0.2);
+      box-shadow: 0 0 20px 0 rgba(#000, 0.5);
     }
   }
 
