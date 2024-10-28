@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onKeyStroke } from '@vueuse/core'
-import { s } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
-import { wubiXsjData, wubiXsjRootList } from '~/constants'
+import { InputStatus, wubiXsjData, wubiXsjRootList } from '~/constants'
+import { delay } from '~/utils'
 
 // const current = wubiXsjRootList
 function getRandomRoot() {
@@ -10,6 +10,7 @@ function getRandomRoot() {
 }
 
 const currentRootKey = ref(getRandomRoot())
+const inputStatus = ref<InputStatus>(InputStatus.waiting)
 
 const hChars = wubiXsjData.h.map(i => i[0])
 const sChars = wubiXsjData.s.map(i => i[0])
@@ -22,23 +23,28 @@ onKeyStroke([
   ...pChars,
   ...nChars,
   ...zChars,
-], (e) => {
+], async (e) => {
   e.preventDefault()
   // console.log(e)
   const { key: char } = e
+  inputStatus.value = InputStatus.waiting
   const [currentChar] = currentRootKey.value.split('-')
   if (char === currentChar) {
+    // inputStatus.value = InputStatus.right
     currentRootKey.value = getRandomRoot()
+    inputStatus.value = InputStatus.waiting
   }
   else {
-    alert('失败')
+    inputStatus.value = InputStatus.wrong
+    // alert('失败')
   }
 })
 </script>
 
 <template>
   <div class="page">
-    <WbXsjRoot class="root-comp" :root-key="currentRootKey" />
+    {{ currentRootKey }}
+    <WbXsjRoot class="root-comp" :root-key="currentRootKey" :input-status="inputStatus" />
   </div>
 </template>
 

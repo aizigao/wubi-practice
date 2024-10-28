@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { data } from './config'
-import { wubiXsjData } from '~/constants'
+import { upperCase } from 'lodash-es'
+import { InputStatus, wubiXsjData } from '~/constants'
 
 interface Props {
   rootKey?: string
+  inputStatus: InputStatus
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  rootKey: 'z-0',
+  rootKey: '-0',
+  inputStatus: InputStatus.waiting,
 })
 
 const hData = wubiXsjData.h
@@ -39,17 +41,32 @@ function isActive(i: any) {
   }
   return false
 }
+const rootKeyChar = computed(() => {
+  return upperCase(props.rootKey.split('-')[0])
+})
+
+const rootKeyImg = computed(() => {
+  const [char, idx] = props.rootKey.split('-')[0]
+  return `/root-xsj/${char}/${idx}.svg`
+  // return `/root-xsj/g/2.svg`
+})
 </script>
 
 <template>
   <div>
+    <div class="wbWsj-root-img">
+      <img :src="rootKeyImg" alt="">
+    </div>
+    <div class="current-char" :class="`current-char--${props.inputStatus}`">
+      {{ rootKeyChar }}
+    </div>
     <div ref="wrapRef" class="wbWsj-root-wrap-scale" :style="wrapStyle">
-      <div ref="rootRef" class="wbWsj-root">
+      <div ref="rootRef" class="wbWsj-root" :class="`wbWsj-root--${props.inputStatus}`">
         <!-- // 横 -->
         <div class="wbWsj-root-part wbWsj-root-part--h">
           <div
             v-for="i in hData.toReversed()" :key="i[0]" class="wbWsj-root-item"
-            :class="isActive(i) && 'wbWsj-root-item--active'" :data="i[0]"
+            :class="isActive(i) && 'wbWsj-root-item--current'" :data="i[0]"
           >
             {{ i[0] }}
           </div>
@@ -57,7 +74,7 @@ function isActive(i: any) {
         <!-- // 竖 -->
         <div class="wbWsj-root-part wbWsj-root-part--s">
           <div
-            v-for="i in sData" :key="i[0]" class="wbWsj-root-item" :class="isActive(i) && 'wbWsj-root-item--active'"
+            v-for="i in sData" :key="i[0]" class="wbWsj-root-item" :class="isActive(i) && 'wbWsj-root-item--current'"
             :data="i[0]"
           >
             {{ i[0] }}
@@ -67,7 +84,7 @@ function isActive(i: any) {
         <div class="wbWsj-root-part wbWsj-root-part--p">
           <div
             v-for="i in pData.toReversed()" :key="i[0]" class="wbWsj-root-item"
-            :class="isActive(i) && 'wbWsj-root-item--active'" :data="i[0]"
+            :class="isActive(i) && 'wbWsj-root-item--current'" :data="i[0]"
           >
             {{ i[0] }}
           </div>
@@ -75,7 +92,7 @@ function isActive(i: any) {
         <!-- 捺 -->
         <div class="wbWsj-root-part wbWsj-root-part--n">
           <div
-            v-for="i in nData" :key="i[0]" class="wbWsj-root-item" :class="isActive(i) && 'wbWsj-root-item--active'"
+            v-for="i in nData" :key="i[0]" class="wbWsj-root-item" :class="isActive(i) && 'wbWsj-root-item--current'"
             :data="i[0]"
           >
             {{ i[0] }}
@@ -85,7 +102,7 @@ function isActive(i: any) {
         <div class="wbWsj-root-part wbWsj-root-part--z">
           <div
             v-for="i in zData.toReversed()" :key="i[0]" class="wbWsj-root-item"
-            :class="isActive(i) && 'wbWsj-root-item--active'" :data="i[0]"
+            :class="isActive(i) && 'wbWsj-root-item--current'" :data="i[0]"
           >
             {{ i[0] }}
           </div>
@@ -96,6 +113,33 @@ function isActive(i: any) {
 </template>
 
 <style lang="less" scoped>
+.wbWsj-root-img {
+  margin: 0 auto;
+  width: 120rem;
+  height: 120rem;
+  margin-bottom: 16rem;
+  padding: 12rem;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+.current-char {
+  font-size: 18rem;
+  font-weight: bold;
+  margin-bottom: 12rem;
+
+  &.current-char--wrong {
+    color: red;
+  }
+}
+
 .wbWsj-root-wrap-scale {
   width: 100%;
   will-change: transform;
@@ -121,9 +165,27 @@ function isActive(i: any) {
       margin-right: 0;
     }
 
-    &.wbWsj-root-item--active {
+    transition:
+      background ease-out 0.2s,
+      box-shadow ease-out 0.2s;
+
+    &.wbWsj-root-item--current {
       background: rgba(#000, 0.2);
       box-shadow: 0 0 20px 0 rgba(#000, 0.5);
+    }
+  }
+
+  &.wbWsj-root--wrong.wbWsj-root--wrong.wbWsj-root--wrong {
+    .wbWsj-root-item--current.wbWsj-root-item--current {
+      background: rgba(red, 0.7);
+      box-shadow: 0 0 20px 5px rgba(red, 0.5);
+    }
+  }
+
+  &.wbWsj-root--right.wbWsj-root--right.wbWsj-root--right {
+    .wbWsj-root-item--current.wbWsj-root-item--current {
+      background: rgba(green, 0.8);
+      box-shadow: 0 0 20px 0 rgba(green, 0.5);
     }
   }
 

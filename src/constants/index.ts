@@ -73,4 +73,11 @@ export const wubiXsjRootList = flattenDeep(Object.values(wubiXsjData).map((typeL
   })
 }))
 
-// console.log(wubiXsjRootList)
+console.log(wubiXsjRootList)
+
+export enum InputStatus {
+  waiting = 'waiting',
+  right = 'right',
+  wrong = 'wrong',
+  timeout = 'timeout',
+}
