@@ -14,5 +14,6 @@ declare module 'vue' {
     TheFooter: typeof import('./components/TheFooter.vue')['default']
     TheInput: typeof import('./components/TheInput.vue')['default']
     WbXsjRoot: typeof import('./components/WbXsjRoot/index.vue')['default']
+    WbXsjWrongList: typeof import('./components/WbXsjWrongList.vue')['default']
   }
 }

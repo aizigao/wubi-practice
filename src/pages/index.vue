@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { onKeyStroke } from '@vueuse/core'
+import { flatten, uniq } from 'lodash-es'
 import { InputStatus, wubiXsjData, wubiXsjRootList } from '~/constants'
-import { delay } from '~/utils'
 
 // const current = wubiXsjRootList
-function getRandomRoot() {
-  const len = wubiXsjRootList.length
-  return wubiXsjRootList[Math.floor(Math.random() * len)].key
+function getRandomRoot(charList: any[]) {
+  // const len = wubiXsjRootList.length
+  const charIdx = Math.floor(Math.random() * 24)
+  const char = String.fromCharCode(97 + charIdx)
+  const charData = charList.filter(i => i.char === char)
+
+  const charX = charData[Math.floor(Math.random() * charData.length)]
+  console.log('char', char, charData, charX.key)
+  return charX.key
 }
 
-const currentRootKey = ref(getRandomRoot())
+const currentRootKey = ref(getRandomRoot(flatten(Object.values(wubiXsjRootList))))
+
 const inputStatus = ref<InputStatus>(InputStatus.waiting)
 
 const hChars = wubiXsjData.h.map(i => i[0])
@@ -17,6 +24,14 @@ const sChars = wubiXsjData.s.map(i => i[0])
 const pChars = wubiXsjData.p.map(i => i[0])
 const nChars = wubiXsjData.n.map(i => i[0])
 const zChars = wubiXsjData.z.map(i => i[0])
+
+const lastInput = ''
+const errorList = reactive<Map<string, number>>(new Map())
+const countMap = reactive({
+  right: 0,
+  wrong: 0,
+})
+
 onKeyStroke([
   ...hChars,
   ...sChars,
@@ -25,25 +40,53 @@ onKeyStroke([
   ...zChars,
 ], async (e) => {
   e.preventDefault()
-  // console.log(e)
   const { key: char } = e
+  // if (lastInput === char) {
+  //   return
+  // }
+  // lastInput = char
   inputStatus.value = InputStatus.waiting
   const [currentChar] = currentRootKey.value.split('-')
   if (char === currentChar) {
-    // inputStatus.value = InputStatus.right
-    currentRootKey.value = getRandomRoot()
+    currentRootKey.value = getRandomRoot(flatten(Object.values(wubiXsjRootList)))
     inputStatus.value = InputStatus.waiting
+    countMap.right += 1
   }
   else {
     inputStatus.value = InputStatus.wrong
-    // alert('失败')
+    countMap.wrong += 1
+    if (!errorList.has(currentRootKey.value)) {
+      errorList.set(currentRootKey.value, 1)
+    }
+    else {
+      errorList.set(currentRootKey.value, errorList.get(currentRootKey.value)! + 1)
+    }
   }
+})
+const rightRatio = computed(() => {
+  if ((countMap.right + countMap.wrong) === 0)
+    return '--'
+  const ratio = countMap.right / (countMap.right + countMap.wrong)
+  return `${(ratio * 100).toFixed(2)}%`
 })
 </script>
 
 <template>
   <div class="page">
-    {{ currentRootKey }}
+    <div class="mb-1 flex">
+      <div color-green>
+        对: {{ countMap.right }}
+      </div>
+      <div ml-1 color-red>
+        错: {{ countMap.wrong }}
+      </div>
+      <!-- <div>重练错误字根</div> -->
+      <div ml-1 color-gray>
+        正确率: {{ rightRatio }}
+      </div>
+      <!-- <div>速度: </div> -->
+    </div>
+    <WbXsjWrongList :wrong-map="errorList" />
     <WbXsjRoot class="root-comp" :root-key="currentRootKey" :input-status="inputStatus" />
   </div>
 </template>
@@ -53,6 +96,7 @@ onKeyStroke([
   height: 100%;
   padding: 32px;
   width: 80%;
+  min-width: 1100px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -61,7 +105,7 @@ onKeyStroke([
 }
 
 .root-comp {
-  width: 800px;
+  width: 1100px;
 }
 </style>
 

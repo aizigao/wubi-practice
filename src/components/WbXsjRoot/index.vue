@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { upperCase } from 'lodash-es'
 import { InputStatus, wubiXsjData } from '~/constants'
+import { getRootKeyImg } from '~/utils'
 
 interface Props {
   rootKey?: string
@@ -41,24 +41,16 @@ function isActive(i: any) {
   }
   return false
 }
-const rootKeyChar = computed(() => {
-  return upperCase(props.rootKey.split('-')[0])
-})
 
 const rootKeyImg = computed(() => {
-  const [char, idx] = props.rootKey.split('-')[0]
-  return `/root-xsj/${char}/${idx}.svg`
-  // return `/root-xsj/g/2.svg`
+  return getRootKeyImg(props.rootKey)
 })
 </script>
 
 <template>
   <div>
-    <div class="wbWsj-root-img">
+    <div class="wbWsj-root-img" :class="`wbWsj-root-img--${inputStatus}`">
       <img :src="rootKeyImg" alt="">
-    </div>
-    <div class="current-char" :class="`current-char--${props.inputStatus}`">
-      {{ rootKeyChar }}
     </div>
     <div ref="wrapRef" class="wbWsj-root-wrap-scale" :style="wrapStyle">
       <div ref="rootRef" class="wbWsj-root" :class="`wbWsj-root--${props.inputStatus}`">
@@ -115,13 +107,16 @@ const rootKeyImg = computed(() => {
 <style lang="less" scoped>
 .wbWsj-root-img {
   margin: 0 auto;
-  width: 120rem;
-  height: 120rem;
-  margin-bottom: 16rem;
-  padding: 12rem;
-  border-radius: 16px;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
+  margin-bottom: 24px;
+
+  &.wbWsj-root-img--wrong {
+    border: 2px solid red;
+  }
 
   img {
     width: 100%;
@@ -131,9 +126,9 @@ const rootKeyImg = computed(() => {
 }
 
 .current-char {
-  font-size: 18rem;
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 12rem;
+  margin-bottom: 12px;
 
   &.current-char--wrong {
     color: red;
@@ -160,6 +155,7 @@ const rootKeyImg = computed(() => {
     overflow: hidden;
     margin-right: 45px;
     flex-shrink: 0;
+    color: transparent;
 
     &:last-child {
       margin-right: 0;
@@ -177,8 +173,10 @@ const rootKeyImg = computed(() => {
 
   &.wbWsj-root--wrong.wbWsj-root--wrong.wbWsj-root--wrong {
     .wbWsj-root-item--current.wbWsj-root-item--current {
-      background: rgba(red, 0.7);
-      box-shadow: 0 0 20px 5px rgba(red, 0.5);
+      background: rgba(#000, 0.1);
+      box-shadow:
+        0 0 30px 5px rgba(red, 0.5),
+        0 0 20px 5px rgba(red, 0.5) inset;
     }
   }
 
