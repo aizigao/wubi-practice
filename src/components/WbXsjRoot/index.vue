@@ -142,7 +142,7 @@ const rootKeyImg = computed(() => {
 }
 
 .wbWsj-root {
-  background: url('~/assets/wubi_root/xsj-main.jpg') no-repeat center center / 100% 100%;
+  background: url('/xsj/xsj-main.webp') no-repeat center center / 100% 100%;
   height: 100%;
   width: 1457px * 2;
   height: 609px * 2;
