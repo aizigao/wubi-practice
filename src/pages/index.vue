@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { onKeyStroke } from '@vueuse/core'
 import { flatten, uniq } from 'lodash-es'
+import { NButton } from 'naive-ui'
 import { InputStatus, wubiXsjData, wubiXsjRootList } from '~/constants'
 
 // const current = wubiXsjRootList
 function getRandomRoot(charList: any[]) {
-  // const len = wubiXsjRootList.length
+  // 随机先一个字母
   const charIdx = Math.floor(Math.random() * 24)
   const char = String.fromCharCode(97 + charIdx)
+
   const charData = charList.filter(i => i.char === char)
 
   const charX = charData[Math.floor(Math.random() * charData.length)]
@@ -25,7 +27,6 @@ const pChars = wubiXsjData.p.map(i => i[0])
 const nChars = wubiXsjData.n.map(i => i[0])
 const zChars = wubiXsjData.z.map(i => i[0])
 
-const lastInput = ''
 const errorList = reactive<Map<string, number>>(new Map())
 const countMap = reactive({
   right: 0,
@@ -69,11 +70,15 @@ const rightRatio = computed(() => {
   const ratio = countMap.right / (countMap.right + countMap.wrong)
   return `${(ratio * 100).toFixed(2)}%`
 })
+
+function onWrongRetry() {
+
+}
 </script>
 
 <template>
   <div class="page">
-    <div class="mb-1 flex">
+    <div class="mb-1 flex items-center">
       <div color-green>
         对: {{ countMap.right }}
       </div>

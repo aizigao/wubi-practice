@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { debounce, upperCase } from 'lodash-es'
 import { getRootKeyImg } from '~/utils'
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {})
 
-// const emit = defineEmits(['update:show'])
+const emit = defineEmits(['wrongRetry'])
 const list = computed(() => {
   return Array.from(props.wrongMap.entries()).sort((a, b) => b[1] - a[1]).map(([key, count]) => {
     return {
@@ -18,14 +19,21 @@ const list = computed(() => {
   },
   )
 })
+const onWrongRetry = debounce(() => {
+  emit('wrongRetry')
+}, 1000, { leading: true })
 </script>
 
 <template>
-  <div class="cont flex flex-col">
+  <div v-if="list.length" class="cont flex flex-col">
+    <NButton mb-2 @click="onWrongRetry">
+      错题重练
+    </NButton>
     <div v-for="i in list" :key="i.img" class="item">
       <img :src="i.img" alt="">
       <span color-red>X{{ i.count }}</span>
-      <span color-green class="char">{{ i.char }}</span>
+      <span flex items-center justify-center color-green class="char">{{
+        upperCase(i.char) }}</span>
     </div>
   </div>
 </template>
@@ -59,9 +67,19 @@ const list = computed(() => {
       left: 8px;
       bottom: 8px;
     }
+
     .char {
       bottom: auto;
-      top: 8px;
+      top: 4px;
+      left: 2px;
+      padding: 5px;
+      width: 28px;
+      height: 32px;
+      line-height: 36;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.4);
+      background: #ddd;
     }
   }
 }
