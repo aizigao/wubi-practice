@@ -8,6 +8,12 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     NButton: typeof import('naive-ui')['NButton']
+    NDialogProvider: typeof import('naive-ui')['NDialogProvider']
+    NMessageProvider: typeof import('naive-ui')['NMessageProvider']
+    NModalProvider: typeof import('naive-ui')['NModalProvider']
+    NNotificationProvider: typeof import('naive-ui')['NNotificationProvider']
+    NSelect: typeof import('naive-ui')['NSelect']
+    NSpace: typeof import('naive-ui')['NSpace']
     README: typeof import('./components/README.md')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

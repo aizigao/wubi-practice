@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const rootImgDir = path.resolve(__dirname, '../public/root-xsj')
-const targetFile = path.resolve(__dirname, '../src/constants/wubiXsjRootList.json')
+const targetFile = path.resolve(__dirname, '../src/constants/wubiXsjRootList.ts')
 
 const baseMap = {
   // 横
@@ -74,7 +74,7 @@ async function main() {
     })
   })
   await Promise.all(promises) // 等待所有 Promise 完成
-  await writeFile(JSON.stringify(baseMap))
+  await writeFile(`export default ${JSON.stringify(baseMap)} as const`)
   console.log('---------ok-----------')
 }
 

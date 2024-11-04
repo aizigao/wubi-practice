@@ -3,12 +3,12 @@ import { InputStatus, wubiXsjData } from '~/constants'
 import { getRootKeyImg } from '~/utils'
 
 interface Props {
-  rootKey?: string
+  rootKeyList?: string[]
   inputStatus: InputStatus
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  rootKey: '-0',
+  rootKeyList: () => ['z-0'],
   inputStatus: InputStatus.waiting,
 })
 
@@ -32,8 +32,11 @@ onMounted(() => {
   }
 })
 
+const currentRootKey = computed(() => {
+  return props.rootKeyList[0]
+})
 function isActive(i: any) {
-  const rootKeyList = props.rootKey.split('-')
+  const rootKeyList = currentRootKey.value.split('-')
   if (i[0] === rootKeyList[0]) {
     if (i[1].list.includes(Number(rootKeyList[1]))) {
       return true
@@ -42,15 +45,23 @@ function isActive(i: any) {
   return false
 }
 
-const rootKeyImg = computed(() => {
-  return getRootKeyImg(props.rootKey)
+const rootKeyImgs = computed(() => {
+  return props.rootKeyList.map(i => getRootKeyImg(i))
 })
 </script>
 
 <template>
   <div>
-    <div class="wbWsj-root-img" :class="`wbWsj-root-img--${inputStatus}`">
-      <img :src="rootKeyImg" alt="">
+    <div pos-relative flex justify-center>
+      <div
+        v-for="i, idx in rootKeyImgs" :key="i" class="wbWsj-root-img"
+        :class="[idx === 0 && `wbWsj-root-img--${inputStatus}`, `wbWsj-root-img--${idx}`]" :style="{
+          zIndex: rootKeyImgs.length - idx,
+          transform: `scale(${1 - idx * .08}) translateX(${132 * idx}px) `,
+        }"
+      >
+        <img :src="i" alt="">
+      </div>
     </div>
     <div ref="wrapRef" class="wbWsj-root-wrap-scale" :style="wrapStyle">
       <div ref="rootRef" class="wbWsj-root" :class="`wbWsj-root--${props.inputStatus}`">
@@ -105,6 +116,9 @@ const rootKeyImg = computed(() => {
 </template>
 
 <style lang="less" scoped>
+.wbWsj-root-img-wrap {
+}
+
 .wbWsj-root-img {
   margin: 0 auto;
   width: 120px;
@@ -113,6 +127,22 @@ const rootKeyImg = computed(() => {
   overflow: hidden;
   border: 2px solid #ddd;
   margin-bottom: 24px;
+  position: absolute;
+  background: #fff;
+  transform-origin: center center;
+  transition: 0.3s ease-out transform;
+
+  img {
+    opacity: 0.2;
+  }
+
+  &.wbWsj-root-img--0 {
+    position: static;
+
+    img {
+      opacity: 1;
+    }
+  }
 
   &.wbWsj-root-img--wrong {
     border: 2px solid red;

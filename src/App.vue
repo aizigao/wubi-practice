@@ -25,5 +25,13 @@ useHead({
 </script>
 
 <template>
-  <RouterView />
+  <n-modal-provider>
+    <n-notification-provider>
+      <n-dialog-provider>
+        <n-message-provider>
+          <RouterView />
+        </n-message-provider>
+      </n-dialog-provider>
+    </n-notification-provider>
+  </n-modal-provider>
 </template>

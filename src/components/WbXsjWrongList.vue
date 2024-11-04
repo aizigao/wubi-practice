@@ -8,7 +8,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {})
 
-const emit = defineEmits(['wrongRetry'])
 const list = computed(() => {
   return Array.from(props.wrongMap.entries()).sort((a, b) => b[1] - a[1]).map(([key, count]) => {
     return {
@@ -19,16 +18,10 @@ const list = computed(() => {
   },
   )
 })
-const onWrongRetry = debounce(() => {
-  emit('wrongRetry')
-}, 1000, { leading: true })
 </script>
 
 <template>
   <div v-if="list.length" class="cont flex flex-col">
-    <NButton mb-2 @click="onWrongRetry">
-      错题重练
-    </NButton>
     <div v-for="i in list" :key="i.img" class="item">
       <img :src="i.img" alt="">
       <span color-red>X{{ i.count }}</span>

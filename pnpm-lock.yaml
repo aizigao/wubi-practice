@@ -148,6 +148,9 @@ devDependencies:
   unplugin-vue-router:
     specifier: ^0.10.7
     version: 0.10.8(rollup@4.24.1)(vue-router@4.4.5)(vue@3.5.12)
+  vfonts:
+    specifier: ^0.0.3
+    version: 0.0.3
   vite:
     specifier: ^5.4.2
     version: 5.4.10(less@4.2.0)
@@ -10081,6 +10084,10 @@ packages:
     dependencies:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
+    dev: true
+
+  /vfonts@0.0.3:
+    resolution: {integrity: sha512-nguyw8L6Un8eelg1vQ31vIU2ESxqid7EYmy8V+MDeMaHBqaRSkg3dTBToC1PR00D89UzS/SLkfYPnx0Wf23IQQ==, tarball: https://registry.npmjs.org/vfonts/-/vfonts-0.0.3.tgz}
     dev: true
 
   /vite-bundle-visualizer@1.2.1(rollup@4.24.1):

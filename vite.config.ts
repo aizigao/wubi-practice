@@ -57,6 +57,14 @@ export default defineConfig({
           // add any other imports you were relying on
           'vue-router/auto': ['useLink'],
         },
+        {
+          'naive-ui': [
+            'useDialog',
+            'useMessage',
+            'useNotification',
+            'useLoadingBar',
+          ],
+        },
       ],
       dts: 'src/auto-imports.d.ts',
       dirs: [

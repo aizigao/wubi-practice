@@ -1,25 +1,71 @@
 <script setup lang="ts">
 import { onKeyStroke } from '@vueuse/core'
-import { flatten, uniq } from 'lodash-es'
-import { NButton } from 'naive-ui'
+import { flatten, shuffle, uniq } from 'lodash-es'
+import { NButton, useDialog, useNotification } from 'naive-ui'
 import { InputStatus, wubiXsjData, wubiXsjRootList } from '~/constants'
 
-// const current = wubiXsjRootList
-function getRandomRoot(charList: any[]) {
-  // 随机先一个字母
-  const charIdx = Math.floor(Math.random() * 24)
-  const char = String.fromCharCode(97 + charIdx)
+const notification = useNotification()
+const dialog = useDialog()
 
-  const charData = charList.filter(i => i.char === char)
-
-  const charX = charData[Math.floor(Math.random() * charData.length)]
-  console.log('char', char, charData, charX.key)
-  return charX.key
-}
-
-const currentRootKey = ref(getRandomRoot(flatten(Object.values(wubiXsjRootList))))
+let restKeyList = shuffle(flatten(Object.values(wubiXsjRootList)).map(i => i.key))
+const errorRootMap = reactive<Map<string, number>>(new Map())
 
 const inputStatus = ref<InputStatus>(InputStatus.waiting)
+const countMap = reactive({
+  right: 0,
+  wrong: 0,
+})
+
+const currentRootKeyList = reactive([])
+function renewRootList(type: 'refresh' | 'init' = 'refresh') {
+  if (restKeyList.length === 0 && currentRootKeyList.length === 1) {
+    if (errorRootMap.size) {
+      dialog.warning({
+        title: '全部完成啦',
+        content: '产生一些错误，开始练习错误？',
+        closable: false,
+        negativeText: '重新开始',
+        onNegativeClick() {
+          genRestKeyList()
+          renewRootList('init')
+        },
+        positiveText: '练习错误',
+        onPositiveClick() {
+          onWrongRetry()
+        },
+      })
+
+      return
+    }
+    dialog.info({
+      title: '全部完成啦',
+      content: '秀儿说的就是你吧',
+      closable: false,
+      positiveText: '再来一次',
+      onPositiveClick() {
+        genRestKeyList()
+        renewRootList('init')
+      },
+    })
+    return
+  }
+  if (type === 'init') {
+    currentRootKeyList.splice(0, currentRootKeyList.length)
+    currentRootKeyList.push(...restKeyList.splice(0, 5))
+    countMap.right = 0
+    countMap.wrong = 0
+    inputStatus.value = InputStatus.waiting
+  }
+  else {
+    currentRootKeyList.shift()
+    currentRootKeyList.push(...restKeyList.splice(0, 1))
+  }
+}
+renewRootList('init')
+
+const currentRootKey = computed(() => {
+  return currentRootKeyList[0]
+})
 
 const hChars = wubiXsjData.h.map(i => i[0])
 const sChars = wubiXsjData.s.map(i => i[0])
@@ -27,10 +73,35 @@ const pChars = wubiXsjData.p.map(i => i[0])
 const nChars = wubiXsjData.n.map(i => i[0])
 const zChars = wubiXsjData.z.map(i => i[0])
 
-const errorList = reactive<Map<string, number>>(new Map())
-const countMap = reactive({
-  right: 0,
-  wrong: 0,
+const practiceOptions = [
+  { label: '所有区域', value: 'all' },
+  { label: '横区', value: 'h' },
+  { label: '竖区', value: 's' },
+  { label: '撇区', value: 'p' },
+  { label: '捺区', value: 'n' },
+  { label: '折区', value: 'z' },
+]
+const practiceActive = ref(practiceOptions[0].value)
+
+function genRestKeyList() {
+  if (practiceActive.value === 'all') {
+    restKeyList = shuffle(flatten(Object.values(wubiXsjRootList)).map(i => i.key))
+  }
+  else {
+    restKeyList = shuffle(
+      flatten(
+        wubiXsjData[practiceActive.value].map(([char, { list }]) => {
+          return list.map((i) => {
+            return `${char}-${i}`
+          })
+        }),
+      ),
+    )
+  }
+}
+watch(practiceActive, () => {
+  genRestKeyList()
+  renewRootList('init')
 })
 
 onKeyStroke([
@@ -42,25 +113,21 @@ onKeyStroke([
 ], async (e) => {
   e.preventDefault()
   const { key: char } = e
-  // if (lastInput === char) {
-  //   return
-  // }
-  // lastInput = char
   inputStatus.value = InputStatus.waiting
   const [currentChar] = currentRootKey.value.split('-')
   if (char === currentChar) {
-    currentRootKey.value = getRandomRoot(flatten(Object.values(wubiXsjRootList)))
+    renewRootList()
     inputStatus.value = InputStatus.waiting
     countMap.right += 1
   }
   else {
     inputStatus.value = InputStatus.wrong
     countMap.wrong += 1
-    if (!errorList.has(currentRootKey.value)) {
-      errorList.set(currentRootKey.value, 1)
+    if (!errorRootMap.has(currentRootKey.value)) {
+      errorRootMap.set(currentRootKey.value, 1)
     }
     else {
-      errorList.set(currentRootKey.value, errorList.get(currentRootKey.value)! + 1)
+      errorRootMap.set(currentRootKey.value, errorRootMap.get(currentRootKey.value)! + 1)
     }
   }
 })
@@ -72,27 +139,38 @@ const rightRatio = computed(() => {
 })
 
 function onWrongRetry() {
-  alert('todo')
+  if (errorRootMap.size === 0) {
+    notification.warning({ content: '当前没有错误啊, 棒棒的!', duration: 1500 })
+    return
+  }
+  const wrongKeys = Array.from(errorRootMap.keys())
+  errorRootMap.clear()
+  restKeyList = shuffle(wrongKeys)
+  renewRootList('init')
 }
 </script>
 
 <template>
   <div class="page">
-    <div class="mb-1 flex items-center">
+    <div class="mb-4 flex items-center">
       <div color-green>
         对: {{ countMap.right }}
       </div>
       <div ml-1 color-red>
         错: {{ countMap.wrong }}
       </div>
-      <!-- <div>重练错误字根</div> -->
       <div ml-1 color-gray>
         正确率: {{ rightRatio }}
       </div>
-      <!-- <div>速度: </div> -->
+      <n-space vertical ml-3 w-26>
+        <n-select v-model:value="practiceActive" :options="practiceOptions" />
+      </n-space>
+      <NButton ml-2 @click="onWrongRetry">
+        错题重练
+      </NButton>
     </div>
-    <WbXsjWrongList :wrong-map="errorList" @wrong-retry="onWrongRetry" />
-    <WbXsjRoot class="root-comp" :root-key="currentRootKey" :input-status="inputStatus" />
+    <WbXsjWrongList :wrong-map="errorRootMap" @wrong-retry="onWrongRetry" />
+    <WbXsjRoot class="root-comp" :root-key-list="currentRootKeyList" :input-status="inputStatus" />
   </div>
 </template>
 
@@ -110,7 +188,8 @@ function onWrongRetry() {
 }
 
 .root-comp {
-  width: 1100px;
+  width: 960px;
+  margin: 0 auto;
 }
 </style>
 

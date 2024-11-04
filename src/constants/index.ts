@@ -1,5 +1,5 @@
 import { flattenDeep, range } from 'lodash-es'
-import wubiXsjData from './wubiXsjRootList.json'
+import wubiXsjData from './wubiXsjRootList'
 
 export const hType = 'gfdsa'
 // 竖
@@ -19,8 +19,6 @@ export const WUBI_ROOT_TYPE = {
   z: zType,
 }
 
-console.log({ wubiXsjData })
-
 export { wubiXsjData }
 
 export const wubiXsjRootList = flattenDeep(Object.values(wubiXsjData).map((typeList) => {
@@ -34,8 +32,6 @@ export const wubiXsjRootList = flattenDeep(Object.values(wubiXsjData).map((typeL
     })
   })
 }))
-
-console.log(wubiXsjRootList)
 
 export enum InputStatus {
   waiting = 'waiting',
