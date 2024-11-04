@@ -22,6 +22,8 @@ export const createApp = ViteSSG(
       .forEach(i => i.install?.(ctx))
     // ctx.app.use(Previewer)
 
-    document.querySelector('#loading-wrap')?.remove()
+    if (document) {
+      document.querySelector('#loading-wrap')?.remove()
+    }
   },
 )

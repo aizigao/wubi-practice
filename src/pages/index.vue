@@ -72,7 +72,7 @@ const rightRatio = computed(() => {
 })
 
 function onWrongRetry() {
-
+  alert('todo')
 }
 </script>
 
@@ -91,7 +91,7 @@ function onWrongRetry() {
       </div>
       <!-- <div>速度: </div> -->
     </div>
-    <WbXsjWrongList :wrong-map="errorList" />
+    <WbXsjWrongList :wrong-map="errorList" @wrong-retry="onWrongRetry" />
     <WbXsjRoot class="root-comp" :root-key="currentRootKey" :input-status="inputStatus" />
   </div>
 </template>
